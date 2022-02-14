@@ -11,9 +11,14 @@ const useYolo= defineStore({
   id: 'Yolo',
   state: () => ({
     status: MODEL_STATUS.none, // 状态
+    fraction: 0.0, // 加载进度
     colors: <any>{},
     scaleW: 0,
     scaleH: 0,
+    animateId: 0, // 动画id
+    duration: 100, // 检测间隔
+    expire: 100, // 期限
+    image: <HTMLVideoElement>{},
     boxes: <any[]>[], // 框
     msg: <string>('') // 消息
   }),
@@ -31,6 +36,12 @@ const useYolo= defineStore({
       return this.status === MODEL_STATUS.loading;
     },
     /**
+     * 加载进度
+     */
+    loadingPercent(): string {
+      return `${(this.fraction*100).toFixed(2)}%`;
+    },
+    /**
      * 执行中
      */
     isExecuting(): boolean {
@@ -41,13 +52,20 @@ const useYolo= defineStore({
      */
     labels():any[] {
       const boxes = this.boxes;
+      const cw = this.image.clientWidth;
+      const ch = this.image.clientHeight;
+      const vw = this.image.videoWidth;
+      const vh = this.image.videoHeight;
+      const scaleW = cw / vw;
+      const scaleH = ch / vh;
+
       boxes.forEach(box => {
         if (!(box['class'] in this.colors)) {
           this.colors[box['class']] = '#' + Math.floor(Math.random() * 16777215).toString(16);
         }
-        box.transform = `translate(${box['top'] * this.scaleH}px, ${box['left'] * this.scaleW}px)`;
-        box.width = `${box['width'] * this.scaleW - 4}px`;
-        box.height = `${box['height'] * this.scaleH - 4}px`;    
+        box.transform = `translate(${box['left'] * scaleW}px, ${box['top'] * scaleH}px)`;
+        box.width = `${box['width'] * scaleW - 4}px`;
+        box.height = `${box['height'] * scaleH - 4}px`;    
         box.color = this.colors[box['class']];
       })
       return boxes;
@@ -65,8 +83,9 @@ const useYolo= defineStore({
      */
     async load() {
       this.status = MODEL_STATUS.loading;
-      await objDetection.loadModel(MODELS['v3tiny']);
+      await objDetection.loadModel(MODELS['v3tiny'], {onProgress:(fraction:number) => this.fraction = fraction});
       this.status = MODEL_STATUS.ready;
+      return true;
     },
     /**
      * 检测(多目标识别)
@@ -84,16 +103,40 @@ const useYolo= defineStore({
       this.status = MODEL_STATUS.ready;
     },
     /**
+     * 检测开始
+     * @param duration 间隔
+     */
+    start(duration:number = 100) {
+      this.duration = duration;
+      this.animateId = requestAnimationFrame( this.animate );
+    },
+    /**
+     * 检测结束
+     */
+    stop() {
+      cancelAnimationFrame(this.animateId);
+    },
+    /**
+     * 检测动画
+     * @param time 
+     */
+    animate() {
+      const t = Date.now();
+      if(t > this.expire) {
+        objDetection.predict(this.image).then(boxex => {
+          this.boxes = boxex;
+          this.expire = Date.now() + this.duration;
+          this.animateId = requestAnimationFrame( this.animate );
+        });
+      } else {
+        this.animateId = requestAnimationFrame( this.animate );
+      }
+    },
+    /**
      * 初始化
      */
     init(image:HTMLVideoElement) {
-      const cw = image.clientWidth;
-      const ch = image.clientHeight;
-      const vw = image.videoWidth;
-      const vh = image.videoHeight;
-      this.scaleW = cw / vw;
-      this.scaleH = ch / vh;
-    
+      this.image = image;
       objDetection.init();
     }
   }

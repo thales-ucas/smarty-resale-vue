@@ -5,6 +5,7 @@ import { v3_tiny_anchors, v3_masks, coco_classes, } from './config';
  */
 export class ObjectDetection {
   model: tf.GraphModel|tf.LayersModel|undefined;
+  canvas = document.createElement('canvas');
   params = {
     maxBoxes: 20, // 最大框数
     scoreThreshold: 0.2, // 显示门槛
@@ -29,8 +30,8 @@ export class ObjectDetection {
    * @param url 模型json地址
    * @returns 模型
    */
-  async loadModel(url:string) {
-    this.model= await tf.loadLayersModel(url);
+  async loadModel(url:string, options?:any) {
+    this.model= await tf.loadLayersModel(url, options);
     return this.model;
   }
   /**
@@ -40,13 +41,12 @@ export class ObjectDetection {
    */
   async predict(image:HTMLVideoElement) {
     let outputs = tf.tidy(() => {
-      const canvas = document.createElement('canvas');
-      canvas.width = this.params.inputSize;
-      canvas.height = this.params.inputSize;
-      const ctx = canvas.getContext('2d');
+      this.canvas.width = this.params.inputSize;
+      this.canvas.height = this.params.inputSize;
+      const ctx = this.canvas.getContext('2d');
       ctx?.drawImage(image, 0, 0, this.params.inputSize, this.params.inputSize);
-  
-      let imageTensor = tf.browser.fromPixels(canvas, 3);
+
+      let imageTensor = tf.browser.fromPixels(this.canvas, 3);
       imageTensor = imageTensor.expandDims(0).toFloat().div(tf.scalar(255));
   
       const outputs = this.model?.predict(imageTensor);

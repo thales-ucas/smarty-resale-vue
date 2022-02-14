@@ -12,7 +12,7 @@
       <legend>摄像头多目标识别</legend>
       <div v-if="errMessage">{{errMessage}}</div>
       <van-button v-if="isInit" type="primary" @click.stop="onLaunch">启动</van-button>
-      <van-loading v-if="isLoading" type="spinner">模型加载中……</van-loading>
+      <van-loading v-if="isLoading" type="spinner">模型加载中……({{fraction}})</van-loading>
       <div class="container">
         <div class="wrapper">
           <div class="labels">
@@ -58,6 +58,7 @@ import '@/utils/user-media';
 const store = useYolo();
 const isInit = computed(() => store.isInit); // 初始状态
 const isLoading = computed(() => store.isLoading); // 加载中
+const fraction = computed(() => store.loadingPercent); // 加载百分比
 const webcam = ref<HTMLVideoElement>(); // 摄像头视频
 const errMessage = ref<string|null>(null) // 摄像头错误代码
 const labels = computed(() => store.labels);
@@ -65,6 +66,10 @@ const labels = computed(() => store.labels);
  * 开始创建
  */
 function onLaunch(e:MouseEvent) {
+  store.load().then(res=> { // 加载模型
+    store.start(); // 开始检测
+  });
+  // 打开摄像头
   navigator?.mediaDevices?.getUserMedia({
     'audio': false,
     'video': { facingMode: 'environment' }
@@ -73,7 +78,6 @@ function onLaunch(e:MouseEvent) {
     if(webcam.value) {
       if ("srcObject" in webcam.value) {
         webcam.value.srcObject = stream;
-        start();
         errMessage.value = null;
       } else {
         // window.stream = stream;
@@ -88,24 +92,9 @@ function onLaunch(e:MouseEvent) {
     errMessage.value = err.message;
   });
 }
-/**
- * 开始
- */
-async function start() {
-  await store.load();
-  run();
-}
-/**
- * 运行
- */
-async function run() {
-  if(webcam.value) {
-    await store.detect(webcam.value);
-    setTimeout(run, 200);
-  }
-}
+
 onMounted(() => {
-  if(webcam.value) store.init(webcam.value);
+  if(webcam.value) store.init(webcam.value); // 摄像头初始化
 });
 </script>
 
@@ -149,11 +138,8 @@ $maxWidth: 600px;
       .webcam {
         background: url('@/assets/images/rob.jpg') no-repeat center center;
         background-size: contain;
-        width: $maxWidth;
+        width: 100%;
         z-index: -100;
-        @media screen and (max-width: $maxWidth) {
-          width: $width;
-        }
       }
     }
   }
