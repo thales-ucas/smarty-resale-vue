@@ -69,7 +69,7 @@ export class ObjectDetection {
     let classes_:any = [];
 
     const _classes = tf.argMax(boxScores, -1);
-    const _boxScores = tf.max(boxScores, -1);
+    const _boxScores:any = tf.max(boxScores, -1);
 
     const nmsIndex = await tf.image.nonMaxSuppressionAsync(
       boxes,
@@ -84,10 +84,10 @@ export class ObjectDetection {
         const classBoxes = tf.gather(boxes, nmsIndex);
         const classBoxScores = tf.gather(_boxScores, nmsIndex);
 
-        classBoxes.split(nmsIndex.size).map(box => {
+        classBoxes.split(nmsIndex.size).map((box:any) => {
           boxes_.push(box.dataSync());
         });
-        classBoxScores.dataSync().map(score => {
+        classBoxScores.dataSync().map((score:any) => {
           scores_.push(score);
         });
         classes_ = _classes.gather(nmsIndex).dataSync();
@@ -115,6 +115,7 @@ export class ObjectDetection {
         height,
         width,
         score: scores_[i],
+        classIndex: classes_[i],
         class: this.params.classNames[classes_[i]]
       }
     });
@@ -127,11 +128,11 @@ export class ObjectDetection {
   
       numLayers = outputs.length;
       anchorMask = v3_masks[numLayers];
-      inputShape = outputs[0].shape.slice(1, 3).map(num => num * 32);
+      inputShape = outputs[0].shape.slice(1, 3).map((num:number) => num * 32);
   
       const anchorsTensor = tf.tensor1d(this.params.anchors).reshape([-1, 2]);
-      let boxes = [];
-      let boxScores = [];
+      let boxes:any = [];
+      let boxScores:any = [];
   
       for (let i = 0; i < numLayers; i++) {
         const [_boxes, _boxScores] = this.yoloBoxesAndScores(

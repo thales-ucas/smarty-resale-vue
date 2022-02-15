@@ -17,7 +17,7 @@
         <div class="wrapper">
           <div class="labels">
             <div v-for="box in labels" class="label" :style="{transform: box.transform, width: box.width, height: box.height, borderColor:box.color}">
-              <div class="text" :style="{color: box.color}">{{box['class']}} {{box['score'].toFixed(2)}}</div>
+              <div class="text" :style="{color: box.color}">{{box.class}} {{box.percent}}</div>
             </div>
           </div>
           <video ref="webcam" autoplay playsinline muted class="webcam"></video>

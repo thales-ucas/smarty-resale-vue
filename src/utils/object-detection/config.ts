@@ -1,11 +1,11 @@
 export const v3_tiny_anchors = [
   10,14, 23,27, 37,58, 81,82, 135,169, 344,319
 ];
-export const v3_masks = {
+export const v3_masks:any = {
   "3": [[6, 7, 8], [3, 4, 5], [0, 1, 2]],
   "2": [[3, 4, 5], [1, 2, 3]]
 };
-
+export const goodses = [0, 56]; // 商品
 export const coco_classes = [
   'person',
   'bicycle',

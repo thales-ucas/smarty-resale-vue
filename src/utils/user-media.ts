@@ -1,11 +1,11 @@
 if (navigator.mediaDevices === undefined) {
-  navigator.mediaDevices = {}; // @ts-ignore
+  (navigator as any).mediaDevices = {}; // @ts-ignore
 }
 if (navigator.mediaDevices.getUserMedia === undefined) {
   navigator.mediaDevices.getUserMedia = function(constraints) {
 
     // First get ahold of the legacy getUserMedia, if present
-    var getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia; // @ts-ignore
+    var getUserMedia = (navigator as any).webkitGetUserMedia || (navigator as any).mozGetUserMedia; // @ts-ignore
 
     // Some browsers just don't implement it - return a rejected promise with an error
     // to keep a consistent interface

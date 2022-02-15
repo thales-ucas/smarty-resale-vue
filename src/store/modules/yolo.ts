@@ -65,8 +65,10 @@ const useYolo= defineStore({
         }
         box.transform = `translate(${box['left'] * scaleW}px, ${box['top'] * scaleH}px)`;
         box.width = `${box['width'] * scaleW - 4}px`;
-        box.height = `${box['height'] * scaleH - 4}px`;    
+        box.height = `${box['height'] * scaleH - 4}px`;
+        box.percent = `${(box['score'] * 100).toFixed(2)}%`;
         box.color = this.colors[box['class']];
+        console.log(box);
       })
       return boxes;
     },
@@ -86,21 +88,6 @@ const useYolo= defineStore({
       await objDetection.loadModel(MODELS['v3tiny'], {onProgress:(fraction:number) => this.fraction = fraction});
       this.status = MODEL_STATUS.ready;
       return true;
-    },
-    /**
-     * 检测(多目标识别)
-     * @param image 要识别的图片
-     */
-    async detect(image:HTMLVideoElement) {
-      this.status = MODEL_STATUS.executing;
-      const cw = image.clientWidth;
-      const ch = image.clientHeight;
-      const vw = image.videoWidth;
-      const vh = image.videoHeight;
-      this.scaleW = cw / vw;
-      this.scaleH = ch / vh;
-      this.boxes = await objDetection.predict(image);
-      this.status = MODEL_STATUS.ready;
     },
     /**
      * 检测开始
