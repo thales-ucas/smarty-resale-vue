@@ -1,3 +1,4 @@
+import { IModelURL } from '@/type/yolo';
 import * as tf from '@tensorflow/tfjs';
 import { v3_tiny_anchors, v3_masks, coco_classes, } from './config';
 /**
@@ -30,8 +31,13 @@ export class ObjectDetection {
    * @param url 模型json地址
    * @returns 模型
    */
-  async loadModel(url:string, options?:any) {
-    this.model= await tf.loadLayersModel(url, options);
+  async loadModel(url:IModelURL, options?:any) {
+    try{
+      this.model = await tf.loadLayersModel(url.indexedDB, options);
+    } catch(e) {
+      this.model= await tf.loadLayersModel(url.path, options);
+      this.model.save(url.indexedDB); // 保存模型在indexdb
+    }
     return this.model;
   }
   /**
