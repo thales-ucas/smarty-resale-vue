@@ -7,6 +7,7 @@
     <article>
       <h1>智能转售</h1>
       <p>打开摄像头，开始扫描商品</p>
+      <p>iPhone微信有摄像头安全策略，请ios设备用户使用浏览器打开</p>
     </article>
     <fieldset>
       <legend>摄像头多目标识别</legend>
