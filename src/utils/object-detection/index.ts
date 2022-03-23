@@ -34,9 +34,11 @@ export class ObjectDetection {
   async loadModel(url:IModelURL, options?:any) {
     try{
       this.model = await tf.loadLayersModel(url.indexedDB, options);
+      window._hmt.push(['_trackEvent', 'load', 'indexedDB']);
     } catch(e) {
       this.model= await tf.loadLayersModel(url.path, options);
       this.model.save(url.indexedDB); // 保存模型在indexdb
+      window._hmt.push(['_trackEvent', 'load', 'path']);
     }
     return this.model;
   }

@@ -68,6 +68,7 @@ const useYolo= defineStore({
         box.height = `${box['height'] * scaleH - 4}px`;
         box.percent = `${(box['score'] * 100).toFixed(2)}%`;
         box.color = this.colors[box['class']];
+        window._hmt.push(['_trackEvent', 'detect', box.class, box.score]);
       })
       return boxes;
     },

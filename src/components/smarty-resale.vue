@@ -52,7 +52,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue-demi';
+import { computed, onMounted, ref } from 'vue';
 import { useYolo } from '@/store';
 import '@/utils/user-media';
 const store = useYolo();
@@ -90,6 +90,8 @@ function onLaunch(e:MouseEvent) {
   })
   .catch(err => {
     errMessage.value = err.message;
+  }).finally(() => {
+    window._hmt.push(['_trackEvent', 'video', errMessage.value?'fail':'success', errMessage.value]);
   });
 }
 
