@@ -8,7 +8,7 @@ var _hmt:any = _hmt || [];
 window._hmt = _hmt;
 (function() {
   var hm = document.createElement("script");
-  hm.src = "https://hm.baidu.com/hm.js?0528a768a473de754ad408b884a48bc5";
+  hm.src = "https://hm.baidu.com/hm.js?3cf2e550dc21008810d8c19c0ba725cc";
   var s = document.getElementsByTagName("script")[0]; 
   s.parentNode?.insertBefore(hm, s);
 })();
